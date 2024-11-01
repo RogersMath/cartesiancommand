@@ -86,22 +86,34 @@
       background: #333;
       padding: 10px 20px;
       border-radius: 8px;
-      flex: 1;
-      text-align: center;
+      min-width: 80px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 8px;
+      white-space: nowrap;
     }
 
     .coordinate-label {
-      color: #888;
+      margin-right: 4px;
     }
 
     .coordinate-value {
-      color: #fff;
+      font-size: 28px;
     }
-    
+
+    .control-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .coordinate-control {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex: 0 1 auto;
+    }
+
     .button-group {
       display: flex;
       flex-direction: column;
@@ -171,6 +183,19 @@
       margin-top: 10px;
       font-size: 20px;
       background-color: #007bff;
+    }
+
+    .action-button {
+      height: 50px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0 30px;
+      flex: 1;
+      text-transform: uppercase;
+      font-weight: bold;
+      min-width: 120px;
     }
 
     #timer {
