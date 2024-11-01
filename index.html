@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cartesian Command: Artillery Training</title>
+  <title>Math Defense: Artillery Command</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -12,18 +13,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      touch-action: manipulation;
     }
 
     .game-container {
       display: flex;
+      flex-direction: column;
       gap: 20px;
-      margin-top: 20px;
+      max-width: 600px;
+      width: 100%;
     }
 
     .battlefield {
       position: relative;
-      width: 400px;
-      height: 400px;
+      width: 100%;
+      padding-bottom: 100%;
       background-color: #2a2a2a;
       border: 2px solid #3a3a3a;
       overflow: hidden;
@@ -34,27 +38,6 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-    }
-
-    .grid-line {
-      position: absolute;
-      background-color: #3a3a3a;
-    }
-
-    .vertical {
-      width: 1px;
-      height: 100%;
-    }
-
-    .horizontal {
-      width: 100%;
-      height: 1px;
-    }
-
-    .coordinates {
-      position: absolute;
-      color: #666;
-      font-size: 12px;
     }
 
     .enemy {
@@ -86,170 +69,292 @@
       background-color: #2a2a2a;
       padding: 20px;
       border-radius: 8px;
-      width: 300px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    .control-group {
+    .coordinate-control {
+      display: flex;
+      gap: 10px;
+      align-items: center;
       margin-bottom: 15px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #888;
+    .coordinate-display {
+      font-size: 24px;
+      font-weight: bold;
+      background: #333;
+      padding: 10px 20px;
+      border-radius: 8px;
+      flex: 1;
+      text-align: center;
     }
 
-    input {
-      width: 100%;
-      padding: 8px;
-      background-color: #333;
-      border: 1px solid #444;
-      color: #fff;
-      border-radius: 4px;
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
-    button {
-      width: 100%;
-      padding: 10px;
+    .control-button {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    .fire-button {
+      width: 100%;
+      height: 60px;
+      font-size: 24px;
+      background-color: #28a745;
+      margin-top: 20px;
     }
 
-    .status {
-      margin-top: 15px;
+    .reload-button {
+      width: 100%;
+      height: 60px;
+      font-size: 24px;
+      background-color: #dc3545;
+      margin-top: 10px;
+    }
+
+    .status-panel {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .math-challenge {
+      background: #333;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .math-challenge input {
+      width: 100%;
       padding: 10px;
-      background-color: #333;
+      font-size: 20px;
+      margin-top: 10px;
+      background: #444;
+      border: none;
+      color: white;
       border-radius: 4px;
     }
 
-    .score {
-      font-size: 18px;
-      font-weight: bold;
-      color: #00ff00;
-      margin-bottom: 10px;
+    .math-challenge button {
+      width: 100%;
+      height: 50px;
+      margin-top: 10px;
+      font-size: 20px;
+      background-color: #007bff;
     }
 
-    .feedback {
-      color: #888;
+    #timer {
+      color: #ff4444;
     }
   </style>
 </head>
 <body>
-  <h1>Cartesian Command: Artillery Training</h1>
   <div class="game-container">
+    <div class="status-panel">
+      <div>Ammo: <span id="ammo">10</span></div>
+      <div>Score: <span id="score">0</span></div>
+      <div>Time: <span id="timer">3:00</span></div>
+    </div>
+    
     <div class="battlefield" id="battlefield">
       <div class="grid-lines" id="grid-lines"></div>
     </div>
+
     <div class="controls">
-      <div class="score" id="score">Score: 0</div>
-      <div class="control-group">
-        <label for="x-coord">X Coordinate (0-10):</label>
-        <input type="number" id="x-coord" min="0" max="10" step="0.1">
+      <div class="coordinate-control">
+        <div class="button-group">
+          <button class="control-button" onclick="adjustCoordinate('x', 1)">↑</button>
+          <button class="control-button" onclick="adjustCoordinate('x', -1)">↓</button>
+        </div>
+        <div class="coordinate-display">X: <span id="x-coord">5</span></div>
       </div>
-      <div class="control-group">
-        <label for="y-coord">Y Coordinate (0-10):</label>
-        <input type="number" id="y-coord" min="0" max="10" step="0.1">
+
+      <div class="coordinate-control">
+        <div class="button-group">
+          <button class="control-button" onclick="adjustCoordinate('y', 1)">↑</button>
+          <button class="control-button" onclick="adjustCoordinate('y', -1)">↓</button>
+        </div>
+        <div class="coordinate-display">Y: <span id="y-coord">5</span></div>
       </div>
-      <button onclick="fire()">Fire Artillery</button>
-      <div class="status">
-        <div class="feedback" id="feedback">Enter coordinates to begin...</div>
-      </div>
+
+      <button class="control-button fire-button" onclick="fire()">FIRE</button>
+      <button class="control-button reload-button" onclick="showReloadChallenge()">RELOAD</button>
+    </div>
+
+    <div class="math-challenge" id="math-challenge">
+      <h3>Solve to Reload:</h3>
+      <div id="math-problem"></div>
+      <input type="number" id="math-answer" placeholder="Enter answer">
+      <button onclick="checkReloadAnswer()">Submit</button>
     </div>
   </div>
 
   <script>
-    let score = 0;
-    let enemies = [];
+    let gameState = {
+      x: 5,
+      y: 5,
+      ammo: 10,
+      score: 0,
+      timeRemaining: 180,
+      enemies: [],
+      gameActive: true
+    };
+
     const GRID_SIZE = 10;
-    const BATTLEFIELD_SIZE = 400;
-    const SCALE = BATTLEFIELD_SIZE / GRID_SIZE;
 
-    // Initialize grid
-    function initializeGrid() {
-      const gridLines = document.getElementById('grid-lines');
+    function adjustCoordinate(coord, delta) {
+      if (!gameState.gameActive) return;
       
-      // Create grid lines
-      for (let i = 0; i <= GRID_SIZE; i++) {
-        // Vertical lines
-        const vLine = document.createElement('div');
-        vLine.className = 'grid-line vertical';
-        vLine.style.left = `${(i / GRID_SIZE) * 100}%`;
-        gridLines.appendChild(vLine);
-
-        // Horizontal lines
-        const hLine = document.createElement('div');
-        hLine.className = 'grid-line horizontal';
-        hLine.style.top = `${(i / GRID_SIZE) * 100}%`;
-        gridLines.appendChild(hLine);
-
-        // Add coordinates
-        if (i < GRID_SIZE) {
-          // X coordinates
-          const xCoord = document.createElement('div');
-          xCoord.className = 'coordinates';
-          xCoord.textContent = i;
-          xCoord.style.left = `${(i / GRID_SIZE) * 100}%`;
-          xCoord.style.top = '0';
-          gridLines.appendChild(xCoord);
-
-          // Y coordinates
-          const yCoord = document.createElement('div');
-          yCoord.className = 'coordinates';
-          yCoord.textContent = i;
-          yCoord.style.left = '0';
-          yCoord.style.top = `${(i / GRID_SIZE) * 100}%`;
-          gridLines.appendChild(yCoord);
-        }
+      if (coord === 'x') {
+        gameState.x = Math.max(0, Math.min(10, gameState.x + delta));
+        document.getElementById('x-coord').textContent = gameState.x;
+      } else {
+        gameState.y = Math.max(0, Math.min(10, gameState.y + delta));
+        document.getElementById('y-coord').textContent = gameState.y;
       }
     }
 
-    // Spawn a new enemy
+    function fire() {
+      if (!gameState.gameActive || gameState.ammo <= 0) return;
+
+      gameState.ammo--;
+      document.getElementById('ammo').textContent = gameState.ammo;
+
+      const battlefield = document.getElementById('battlefield');
+      const rect = battlefield.getBoundingClientRect();
+      const scale = rect.width / GRID_SIZE;
+
+      // Create explosion
+      const explosion = document.createElement('div');
+      explosion.className = 'explosion';
+      explosion.style.left = `${gameState.x * scale}px`;
+      explosion.style.top = `${gameState.y * scale}px`;
+      battlefield.appendChild(explosion);
+      setTimeout(() => explosion.remove(), 500);
+
+      // Check hits
+      gameState.enemies = gameState.enemies.filter(enemy => {
+        const distance = Math.sqrt(
+          Math.pow(enemy.x - gameState.x, 2) + 
+          Math.pow(enemy.y - gameState.y, 2)
+        );
+        
+        if (distance < 0.8) {
+          enemy.element.remove();
+          gameState.score += 100;
+          document.getElementById('score').textContent = gameState.score;
+          setTimeout(spawnEnemy, 1000);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    function generateMathProblem() {
+      const operators = ['+', '-', '*', '/'];
+      const num1 = Math.floor(Math.random() * 10) + 1;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const num3 = Math.floor(Math.random() * 10) + 1;
+      const op1 = operators[Math.floor(Math.random() * 4)];
+      const op2 = operators[Math.floor(Math.random() * 4)];
+
+      const expression = `${num1} ${op1} (${num2} ${op2} ${num3})`;
+      const answer = eval(expression);
+
+      return {
+        problem: expression,
+        answer: Number(answer.toFixed(2))
+      };
+    }
+
+    let currentProblem = null;
+
+    function showReloadChallenge() {
+      if (!gameState.gameActive) return;
+      
+      currentProblem = generateMathProblem();
+      document.getElementById('math-problem').textContent = currentProblem.problem;
+      document.getElementById('math-challenge').style.display = 'block';
+      document.getElementById('math-answer').value = '';
+      document.getElementById('math-answer').focus();
+    }
+
+    function checkReloadAnswer() {
+      const userAnswer = parseFloat(document.getElementById('math-answer').value);
+      if (Math.abs(userAnswer - currentProblem.answer) < 0.1) {
+        gameState.ammo = Math.min(gameState.ammo + 5, 10);
+        document.getElementById('ammo').textContent = gameState.ammo;
+        document.getElementById('math-challenge').style.display = 'none';
+      } else {
+        document.getElementById('math-answer').value = '';
+        document.getElementById('math-answer').placeholder = 'Try again';
+      }
+    }
+
     function spawnEnemy() {
+      if (!gameState.gameActive) return;
+
+      const battlefield = document.getElementById('battlefield');
+      const rect = battlefield.getBoundingClientRect();
+      const scale = rect.width / GRID_SIZE;
+
       const x = Math.random() * GRID_SIZE;
       const y = Math.random() * GRID_SIZE;
       
       const enemy = document.createElement('div');
       enemy.className = 'enemy';
-      enemy.style.left = `${x * SCALE}px`;
-      enemy.style.top = `${y * SCALE}px`;
+      enemy.style.left = `${x * scale}px`;
+      enemy.style.top = `${y * scale}px`;
       
-      document.getElementById('battlefield').appendChild(enemy);
-      enemies.push({ element: enemy, x, y });
+      battlefield.appendChild(enemy);
+      gameState.enemies.push({ element: enemy, x, y });
 
-      // Start movement
       moveEnemy(enemy, x, y);
     }
 
-    // Move enemy in a pattern
     function moveEnemy(enemy, startX, startY) {
       let time = 0;
       const radius = 1;
       const speed = 0.001;
 
       function updatePosition() {
-        time += 16; // milliseconds per frame
+        if (!gameState.gameActive) return;
+
+        time += 16;
         const x = startX + radius * Math.cos(speed * time);
         const y = startY + radius * Math.sin(speed * time);
         
-        enemy.style.left = `${x * SCALE}px`;
-        enemy.style.top = `${y * SCALE}px`;
+        const battlefield = document.getElementById('battlefield');
+        const rect = battlefield.getBoundingClientRect();
+        const scale = rect.width / GRID_SIZE;
 
-        // Update enemy position in the enemies array
-        const enemyObj = enemies.find(e => e.element === enemy);
+        enemy.style.left = `${x * scale}px`;
+        enemy.style.top = `${y * scale}px`;
+
+        const enemyObj = gameState.enemies.find(e => e.element === enemy);
         if (enemyObj) {
           enemyObj.x = x;
           enemyObj.y = y;
         }
 
-        if (enemy.parentNode) { // Check if enemy still exists
+        if (enemy.parentNode && gameState.gameActive) {
           requestAnimationFrame(updatePosition);
         }
       }
@@ -257,67 +362,77 @@
       requestAnimationFrame(updatePosition);
     }
 
-    // Fire artillery
-    function fire() {
-      const x = parseFloat(document.getElementById('x-coord').value);
-      const y = parseFloat(document.getElementById('y-coord').value);
-      
-      if (isNaN(x) || isNaN(y) || x < 0 || x > GRID_SIZE || y < 0 || y > GRID_SIZE) {
-        setFeedback('Invalid coordinates! Use values between 0 and ' + GRID_SIZE);
-        return;
-      }
+    function updateTimer() {
+      if (!gameState.gameActive) return;
 
-      // Create explosion effect
-      const explosion = document.createElement('div');
-      explosion.className = 'explosion';
-      explosion.style.left = `${x * SCALE}px`;
-      explosion.style.top = `${y * SCALE}px`;
-      document.getElementById('battlefield').appendChild(explosion);
-      
-      // Remove explosion after animation
-      setTimeout(() => explosion.remove(), 500);
+      gameState.timeRemaining--;
+      const minutes = Math.floor(gameState.timeRemaining / 60);
+      const seconds = gameState.timeRemaining % 60;
+      document.getElementById('timer').textContent = 
+        `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-      // Check for hits
-      let hit = false;
-      enemies = enemies.filter(enemy => {
-        const distance = Math.sqrt(
-          Math.pow(enemy.x - x, 2) + Math.pow(enemy.y - y, 2)
-        );
-        
-        if (distance < 0.5) { // Hit radius
-          enemy.element.remove();
-          score += 100;
-          hit = true;
-          return false;
-        }
-        return true;
-      });
-
-      // Update score and feedback
-      document.getElementById('score').textContent = `Score: ${score}`;
-      if (hit) {
-        setFeedback('Direct hit! Target destroyed!');
-        // Spawn new enemy after successful hit
-        setTimeout(spawnEnemy, 1000);
+      if (gameState.timeRemaining <= 0) {
+        endGame();
       } else {
-        setFeedback(`Miss! Shot landed at (${x.toFixed(1)}, ${y.toFixed(1)})`);
+        setTimeout(updateTimer, 1000);
       }
     }
 
-    function setFeedback(message) {
-      document.getElementById('feedback').textContent = message;
+    function endGame() {
+      gameState.gameActive = false;
+      alert(`Game Over! Final Score: ${gameState.score}`);
     }
 
     // Initialize game
-    initializeGrid();
     spawnEnemy();
     spawnEnemy();
+    updateTimer();
 
     // Add keyboard support
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        fire();
+      if (!gameState.gameActive) return;
+      
+      switch(e.key) {
+        case 'ArrowLeft':
+        case 'a':
+          adjustCoordinate('x', -1);
+          break;
+        case 'ArrowRight':
+        case 'd':
+          adjustCoordinate('x', 1);
+          break;
+        case 'ArrowUp':
+        case 'w':
+          adjustCoordinate('y', -1);
+          break;
+        case 'ArrowDown':
+        case 's':
+          adjustCoordinate('y', 1);
+          break;
+        case ' ':
+          fire();
+          break;
+        case 'r':
+          showReloadChallenge();
+          break;
+        case 'Enter':
+          if (document.getElementById('math-challenge').style.display === 'block') {
+            checkReloadAnswer();
+          }
+          break;
       }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      const battlefield = document.getElementById('battlefield');
+      const rect = battlefield.getBoundingClientRect();
+      const scale = rect.width / GRID_SIZE;
+
+      gameState.enemies.forEach(enemy => {
+        enemy.element.style.left = `${enemy.x * scale}px`;
+        enemy.element.style.top = `${enemy.y * scale}px`;
+      });
     });
   </script>
 </body>
