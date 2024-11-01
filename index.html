@@ -73,11 +73,18 @@
       box-sizing: border-box;
     }
 
-    .coordinate-control {
+    .control-row {
       display: flex;
       gap: 10px;
       align-items: center;
       margin-bottom: 15px;
+    }
+
+    .coordinate-control {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex: 1;
     }
 
     .coordinate-display {
@@ -110,20 +117,24 @@
       justify-content: center;
     }
 
+    .action-button {
+      height: 50px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0 20px;
+      flex: 1;
+      color: white;
+      font-weight: bold;
+    }
+
     .fire-button {
-      width: 100%;
-      height: 60px;
-      font-size: 24px;
       background-color: #28a745;
-      margin-top: 20px;
     }
 
     .reload-button {
-      width: 100%;
-      height: 60px;
-      font-size: 24px;
       background-color: #dc3545;
-      margin-top: 10px;
     }
 
     .status-panel {
@@ -158,6 +169,10 @@
       margin-top: 10px;
       font-size: 20px;
       background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
     #timer {
@@ -178,24 +193,27 @@
     </div>
 
     <div class="controls">
-      <div class="coordinate-control">
-        <div class="button-group">
-          <button class="control-button" onclick="adjustCoordinate('x', 1)">↑</button>
-          <button class="control-button" onclick="adjustCoordinate('x', -1)">↓</button>
+      <div class="control-row">
+        <div class="coordinate-control">
+          <div class="button-group">
+            <button class="control-button" onclick="adjustCoordinate('x', 1)">↑</button>
+            <button class="control-button" onclick="adjustCoordinate('x', -1)">↓</button>
+          </div>
+          <div class="coordinate-display">X: <span id="x-coord">5</span></div>
         </div>
-        <div class="coordinate-display">X: <span id="x-coord">5</span></div>
+        <button class="action-button fire-button" onclick="fire()">FIRE</button>
       </div>
 
-      <div class="coordinate-control">
-        <div class="button-group">
-          <button class="control-button" onclick="adjustCoordinate('y', 1)">↑</button>
-          <button class="control-button" onclick="adjustCoordinate('y', -1)">↓</button>
+      <div class="control-row">
+        <div class="coordinate-control">
+          <div class="button-group">
+            <button class="control-button" onclick="adjustCoordinate('y', 1)">↑</button>
+            <button class="control-button" onclick="adjustCoordinate('y', -1)">↓</button>
+          </div>
+          <div class="coordinate-display">Y: <span id="y-coord">5</span></div>
         </div>
-        <div class="coordinate-display">Y: <span id="y-coord">5</span></div>
+        <button class="action-button reload-button" onclick="showReloadChallenge()">RELOAD</button>
       </div>
-
-      <button class="control-button fire-button" onclick="fire()">FIRE</button>
-      <button class="control-button reload-button" onclick="showReloadChallenge()">RELOAD</button>
     </div>
 
     <div class="math-challenge" id="math-challenge">
@@ -245,7 +263,7 @@
       const explosion = document.createElement('div');
       explosion.className = 'explosion';
       explosion.style.left = `${gameState.x * scale}px`;
-      explosion.style.top = `${gameState.y * scale}px`;
+      explosion.style.top = `${(GRID_SIZE - gameState.y) * scale}px`; // Invert Y coordinate
       battlefield.appendChild(explosion);
       setTimeout(() => explosion.remove(), 500);
 
@@ -321,7 +339,7 @@
       const enemy = document.createElement('div');
       enemy.className = 'enemy';
       enemy.style.left = `${x * scale}px`;
-      enemy.style.top = `${y * scale}px`;
+      enemy.style.top = `${(GRID_SIZE - y) * scale}px`; // Invert Y coordinate
       
       battlefield.appendChild(enemy);
       gameState.enemies.push({ element: enemy, x, y });
@@ -346,7 +364,7 @@
         const scale = rect.width / GRID_SIZE;
 
         enemy.style.left = `${x * scale}px`;
-        enemy.style.top = `${y * scale}px`;
+        enemy.style.top = `${(GRID_SIZE - y) * scale}px`; // Invert Y coordinate
 
         const enemyObj = gameState.enemies.find(e => e.element === enemy);
         if (enemyObj) {
@@ -360,6 +378,35 @@
       }
 
       requestAnimationFrame(updatePosition);
+    }
+
+    // Initialize grid with mathematical Y-axis
+    function initializeGrid() {
+      const gridLines = document.getElementById('grid-lines');
+      const battlefield = document.getElementById('battlefield');
+      
+      // Create grid lines
+      for (let i = 0; i <= GRID_SIZE; i++) {
+        // Vertical lines
+        const vLine = document.createElement('div');
+        vLine.style.position = 'absolute';
+        vLine.style.left = `${(i / GRID_SIZE) * 100}%`;
+        vLine.style.top = '0';
+        vLine.style.width = '1px';
+        vLine.style.height = '100%';
+        vLine.style.backgroundColor = '#3a3a3a';
+        gridLines.appendChild(vLine);
+
+        // Horizontal lines
+        const hLine = document.createElement('div');
+        hLine.style.position = 'absolute';
+        hLine.style.left = '0';
+        hLine.style.top = `${(i / GRID_SIZE) * 100}%`;
+        hLine.style.width = '100%';
+        hLine.style.height = '1px';
+        hLine.style.backgroundColor = '#3a3a3a';
+        gridLines.appendChild(hLine);
+      }
     }
 
     function updateTimer() {
@@ -384,6 +431,7 @@
     }
 
     // Initialize game
+    initializeGrid();
     spawnEnemy();
     spawnEnemy();
     updateTimer();
@@ -403,11 +451,11 @@
           break;
         case 'ArrowUp':
         case 'w':
-          adjustCoordinate('y', -1);
+          adjustCoordinate('y', 1);  // Inverted for mathematical Y-axis
           break;
         case 'ArrowDown':
         case 's':
-          adjustCoordinate('y', 1);
+          adjustCoordinate('y', -1);  // Inverted for mathematical Y-axis
           break;
         case ' ':
           fire();
@@ -431,7 +479,7 @@
 
       gameState.enemies.forEach(enemy => {
         enemy.element.style.left = `${enemy.x * scale}px`;
-        enemy.element.style.top = `${enemy.y * scale}px`;
+        enemy.element.style.top = `${(GRID_SIZE - enemy.y) * scale}px`;  // Invert Y for mathematical coordinates
       });
     });
   </script>
