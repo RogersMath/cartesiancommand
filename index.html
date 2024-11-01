@@ -88,8 +88,20 @@
       border-radius: 8px;
       flex: 1;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
     }
 
+    .coordinate-label {
+      color: #888;
+    }
+
+    .coordinate-value {
+      color: #fff;
+    }
+    
     .button-group {
       display: flex;
       flex-direction: column;
@@ -150,6 +162,7 @@
       border: none;
       color: white;
       border-radius: 4px;
+      -webkit-appearance: none;  /* Removes default iOS styling */
     }
 
     .math-challenge button {
@@ -177,34 +190,33 @@
       <div class="grid-lines" id="grid-lines"></div>
     </div>
 
-    <div class="controls">
-      <div class="coordinate-control">
-        <div class="button-group">
-          <button class="control-button" onclick="adjustCoordinate('x', 1)">↑</button>
-          <button class="control-button" onclick="adjustCoordinate('x', -1)">↓</button>
+    <div class="control-row">
+        <div class="coordinate-control">
+          <div class="button-group">
+            <button class="control-button" onclick="adjustCoordinate('x', 1)">↑</button>
+            <button class="control-button" onclick="adjustCoordinate('x', -1)">↓</button>
+          </div>
+          <div class="coordinate-display">
+            <span class="coordinate-label">X:</span>
+            <span class="coordinate-value" id="x-coord">5</span>
+          </div>
         </div>
-        <div class="coordinate-display">X: <span id="x-coord">5</span></div>
+        <button class="action-button fire-button" onclick="fire()">FIRE</button>
       </div>
 
-      <div class="coordinate-control">
-        <div class="button-group">
-          <button class="control-button" onclick="adjustCoordinate('y', 1)">↑</button>
-          <button class="control-button" onclick="adjustCoordinate('y', -1)">↓</button>
+      <div class="control-row">
+        <div class="coordinate-control">
+          <div class="button-group">
+            <button class="control-button" onclick="adjustCoordinate('y', 1)">↑</button>
+            <button class="control-button" onclick="adjustCoordinate('y', -1)">↓</button>
+          </div>
+          <div class="coordinate-display">
+            <span class="coordinate-label">Y:</span>
+            <span class="coordinate-value" id="y-coord">5</span>
+          </div>
         </div>
-        <div class="coordinate-display">Y: <span id="y-coord">5</span></div>
+        <button class="action-button reload-button" onclick="showReloadChallenge()">RELOAD</button>
       </div>
-
-      <button class="control-button fire-button" onclick="fire()">FIRE</button>
-      <button class="control-button reload-button" onclick="showReloadChallenge()">RELOAD</button>
-    </div>
-
-    <div class="math-challenge" id="math-challenge">
-      <h3>Solve to Reload:</h3>
-      <div id="math-problem"></div>
-      <input type="number" id="math-answer" placeholder="Enter answer">
-      <button onclick="checkReloadAnswer()">Submit</button>
-    </div>
-  </div>
 
   <script>
     let gameState = {
